@@ -30,7 +30,7 @@ class PaymentMethod(str, Enum):
     OUT_OF_POCKET = "out_of_pocket"
     HSA = "hsa"
 
-
+# not sure about pending language; reimburseable might be more clear
 class ReimbursementStatus(str, Enum):
     PENDING = "pending"
     REIMBURSED = "reimbursed"
@@ -43,10 +43,33 @@ class ContributionSource(str, Enum):
 
 
 # IRS HSA contribution limits by tax year: (individual, family)
+#https://dqydj.com/historical-hsa-contribution-limit/
+#Potentially explore a source to pull this data automatically?
+#To-Do: add deductable required and catch-up contributions
 CONTRIBUTION_LIMITS: dict[int, tuple[str, str]] = {
+    2004: ("2600.00", "5150.00"),
+    2005: ("2650.00", "5250.00"),
+    2006: ("2700.00", "5450.00"),
+    2007: ("2850.00", "5650.00"),
+    2008: ("2900.00", "5800.00"),
+    2009: ("3000.00", "5950.00"),
+    2010: ("3050.00", "6150.00"),
+    2011: ("3050.00", "6150.00"),
+    2012: ("3100.00", "6250.00"),
+    2013: ("3250.00", "6450.00"),
+    2014: ("3300.00", "6550.00"),
+    2015: ("3350.00", "6650.00"),
+    2016: ("3350.00", "6750.00"),
+    2017: ("3400.00", "6750.00"),
+    2018: ("3450.00", "6900.00"),
+    2019: ("3500.00", "7000.00"),
+    2020: ("3550.00", "7100.00"),
+    2021: ("3600.00", "7200.00"),
+    2022: ("3650.00", "7300.00"),
+    2023: ("3850.00", "7750.00"),
     2024: ("4150.00", "8300.00"),
     2025: ("4300.00", "8550.00"),
-    2026: ("4300.00", "8550.00"),
+    2026: ("4400.00", "8750.00"),
 }
 
 ALLOWED_RECEIPT_MIME_TYPES = {"image/jpeg", "image/png", "application/pdf"}

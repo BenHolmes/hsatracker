@@ -12,7 +12,7 @@ All data stays on your machine. No external services, no subscriptions.
 
 ---
 
-## Completed: Backend API (Steps 1–6)
+## Completed (Steps 1–7) - Starting UI
 
 ### Step 1 — Repo Scaffolding
 - `.gitignore` — ignores `__pycache__`, `node_modules`, `.env`, `data/`
@@ -81,6 +81,14 @@ Alembic runs automatically on container startup (`alembic upgrade head`).
 **Storage:** Files saved to `./data/uploads/` on the host via Docker bind mount.
 Renamed to `{uuid}.ext` on disk to prevent collisions. Max size configurable via `MAX_UPLOAD_SIZE_MB` (default 10MB).
 
+### Step 7 — Frontend Scaffold
+- Vite 6 + React 19 + TypeScript project in `frontend/`
+- **Dependencies:** React Router v7, TanStack Query v5, Axios, React Hook Form, Zod, date-fns, Lucide React, Sonner
+- Tailwind CSS v4 via `@tailwindcss/vite` plugin (no config file needed)
+- Vite dev proxy: `/api` → `http://localhost:8000`
+- `App.tsx`: `BrowserRouter` with routes for all 5 pages, `QueryClientProvider` wrapping the tree
+- Placeholder pages: Dashboard, Expenses, Reimbursements, Contributions, Balance
+
 ---
 
 ## Docker Compose Services
@@ -88,14 +96,15 @@ Renamed to `{uuid}.ext` on disk to prevent collisions. Max size configurable via
 ```
 db        postgres:17-alpine     Named volume: postgres_data
 backend   python:3.13-slim       Bind mount: ./data/uploads → /app/uploads
-frontend  (not yet built)        Host port: ${PORT:-3000}
+frontend  node:22-alpine (dev)   Host port: ${PORT:-3000}
 ```
 
-Start the backend stack:
+Start the full stack (dev):
 ```bash
 cp .env.example .env        # set a real POSTGRES_PASSWORD
 docker compose up db backend --build -d
 docker compose logs backend  # confirm "Application startup complete"
+cd frontend && npm run dev   # Vite dev server on http://localhost:5173
 ```
 
 ---
@@ -104,7 +113,6 @@ docker compose logs backend  # confirm "Application startup complete"
 
 | Step | Description |
 |---|---|
-| 7 | Frontend scaffold — Vite, React, Tailwind, React Router |
 | 8 | Frontend: shared infra — API client, TypeScript types, Layout |
 | 9 | Frontend: expenses page + form modal |
 | 10 | Frontend: receipts — upload, list, thumbnail |
@@ -113,4 +121,3 @@ docker compose logs backend  # confirm "Application startup complete"
 | 13 | Frontend: dashboard + balance page |
 | 14 | Docker production build — frontend Dockerfile + Nginx |
 | 15 | Polish — toasts, empty states, loading skeletons, README |
-
