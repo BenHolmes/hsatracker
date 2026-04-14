@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { createExpense, updateExpense } from '../../api/expenses'
+import { updateReimbursement } from '../../api/reimbursements'
 import { HSA_CATEGORIES } from '../../lib/constants'
 import { formatLabel } from '../../lib/formatters'
 import type { ExpenseOut } from '../../types'
@@ -20,6 +21,9 @@ const schema = z.object({
   category:       z.string().min(1, 'Please select a category'),
   payment_method: z.enum(['out_of_pocket', 'hsa']),
   notes:          z.string().optional(),
+  // Reimbursement fields — only relevant when editing an expense with a reimbursement
+  reimbursed_amount: z.string().optional(),
+  reimbursed_date:   z.string().optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -32,6 +36,7 @@ interface Props {
 export default function ExpenseFormModal({ expense, onClose }: Props) {
   const queryClient = useQueryClient()
   const isEdit = !!expense
+  const reimbursement = expense?.reimbursement ?? null
 
   const {
     register,
@@ -41,13 +46,15 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
     resolver: zodResolver(schema),
     defaultValues: expense
       ? {
-          date:           expense.date,
-          provider_name:  expense.provider_name,
-          description:    expense.description,
-          amount:         expense.amount,
-          category:       expense.category,
-          payment_method: expense.payment_method,
-          notes:          expense.notes ?? '',
+          date:              expense.date,
+          provider_name:     expense.provider_name,
+          description:       expense.description,
+          amount:            expense.amount,
+          category:          expense.category,
+          payment_method:    expense.payment_method,
+          notes:             expense.notes ?? '',
+          reimbursed_amount: reimbursement?.reimbursed_amount ?? '',
+          reimbursed_date:   reimbursement?.reimbursed_date   ?? '',
         }
       : {
           date:           new Date().toISOString().slice(0, 10),
@@ -57,10 +64,41 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
   })
 
   const mutation = useMutation({
-    mutationFn: (data: FormData) =>
-      isEdit ? updateExpense(expense!.id, data) : createExpense(data),
+    mutationFn: async (data: FormData) => {
+      // Always update / create the expense itself
+      const result = isEdit
+        ? await updateExpense(expense!.id, {
+            date:           data.date,
+            provider_name:  data.provider_name,
+            description:    data.description,
+            amount:         data.amount,
+            category:       data.category,
+            payment_method: data.payment_method,
+            notes:          data.notes,
+          })
+        : await createExpense({
+            date:           data.date,
+            provider_name:  data.provider_name,
+            description:    data.description,
+            amount:         data.amount,
+            category:       data.category,
+            payment_method: data.payment_method,
+            notes:          data.notes,
+          })
+
+      // If editing and a reimbursement exists, sync the reimbursement fields
+      if (isEdit && reimbursement) {
+        await updateReimbursement(reimbursement.id, {
+          reimbursed_amount: data.reimbursed_amount || undefined,
+          reimbursed_date:   data.reimbursed_date   || undefined,
+        })
+      }
+
+      return result
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] })
+      queryClient.invalidateQueries({ queryKey: ['reimbursements'] })
       queryClient.invalidateQueries({ queryKey: ['summary'] })
       toast.success(isEdit ? 'Expense updated' : 'Expense added')
       onClose()
@@ -161,6 +199,40 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
             className={`${fieldClass} resize-none`}
           />
         </div>
+
+        {/* Reimbursement section — only shown when editing an expense with a reimbursement */}
+        {isEdit && reimbursement && (
+          <div className="pt-2 border-t border-slate-100 space-y-4">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              Reimbursement
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Amount Reimbursed ($)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  placeholder="0.00"
+                  {...register('reimbursed_amount')}
+                  className={fieldClass}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Reimbursement Date
+                </label>
+                <input
+                  type="date"
+                  {...register('reimbursed_date')}
+                  className={fieldClass}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex justify-end gap-3 pt-2 border-t border-slate-100">

@@ -113,7 +113,7 @@ export default function ExpensesPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
@@ -124,25 +124,26 @@ export default function ExpensesPage() {
               <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Method</th>
               <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Amount</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Reimbursement</th>
+              <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Amt Reimbursed</th>
               <th className="px-4 py-3 w-20" />
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-slate-400">
+                <td colSpan={9} className="px-4 py-12 text-center text-slate-400">
                   Loading expenses…
                 </td>
               </tr>
             ) : isError ? (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-red-500">
+                <td colSpan={9} className="px-4 py-12 text-center text-red-500">
                   Failed to load expenses. Is the backend running?
                 </td>
               </tr>
             ) : data?.items.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-slate-400">
+                <td colSpan={9} className="px-4 py-12 text-center text-slate-400">
                   No expenses found.{' '}
                   <button onClick={openAdd} className="text-emerald-600 hover:underline">
                     Add your first expense.
@@ -180,6 +181,11 @@ export default function ExpensesPage() {
                   </td>
                   <td className="px-4 py-3">
                     <ReimbursementBadge status={expense.reimbursement?.status} />
+                  </td>
+                  <td className="px-4 py-3 text-right font-medium text-slate-800 whitespace-nowrap">
+                    {expense.reimbursement?.reimbursed_amount
+                      ? formatCurrency(expense.reimbursement.reimbursed_amount)
+                      : '—'}
                   </td>
                   <td className="px-4 py-3">
                     {deletingId === expense.id ? (
