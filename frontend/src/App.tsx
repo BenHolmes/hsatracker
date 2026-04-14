@@ -1,11 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { Toaster } from 'sonner'
 import Layout from './components/layout/Layout'
-import BalancePage from './pages/BalancePage'
-import ContributionsPage from './pages/ContributionsPage'
+import AccountPage from './pages/AccountPage'
 import DashboardPage from './pages/DashboardPage'
 import ExpensesPage from './pages/ExpensesPage'
 import ReimbursementsPage from './pages/ReimbursementsPage'
+import SettingsPage from './pages/SettingsPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,14 +20,15 @@ const queryClient = new QueryClient({
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <Toaster position="top-right" richColors />
       <BrowserRouter>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/expenses" element={<ExpensesPage />} />
             <Route path="/reimbursements" element={<ReimbursementsPage />} />
-            <Route path="/contributions" element={<ContributionsPage />} />
-            <Route path="/balance" element={<BalancePage />} />
+            <Route path="/account" element={<AccountPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
