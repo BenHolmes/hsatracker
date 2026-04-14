@@ -1,4 +1,6 @@
+import uuid as _uuid
 from decimal import Decimal
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -6,8 +8,8 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.constants import CONTRIBUTION_LIMITS
-from app.models import AccountBalance, Contribution, Expense, Reimbursement
+from app.constants import ALLOWED_RECEIPT_MIME_TYPES, CONTRIBUTION_LIMITS
+from app.models import AccountBalance, Contribution, Expense, Receipt, Reimbursement
 from app.schemas import (
     BalanceCreate,
     ContributionCreate,
@@ -185,6 +187,94 @@ async def delete_reimbursement(db: AsyncSession, reimbursement_id: UUID) -> None
     reimbursement = await get_reimbursement(db, reimbursement_id)
     await db.delete(reimbursement)
     await db.commit()
+
+
+# ---------------------------------------------------------------------------
+# Receipts
+# ---------------------------------------------------------------------------
+
+_MIME_TO_EXT = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "application/pdf": ".pdf",
+}
+
+
+async def create_receipt(
+    db: AsyncSession,
+    expense_id: UUID,
+    content: bytes,
+    original_filename: str,
+    mime_type: str,
+    upload_dir: Path,
+    max_size_mb: int,
+) -> Receipt:
+    if mime_type not in ALLOWED_RECEIPT_MIME_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unsupported file type '{mime_type}'. Allowed: jpeg, png, pdf",
+        )
+    max_bytes = max_size_mb * 1024 * 1024
+    if len(content) > max_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File exceeds maximum size of {max_size_mb}MB",
+        )
+
+    # Validate expense exists
+    expense = await db.get(Expense, expense_id)
+    if expense is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Expense not found")
+
+    ext = _MIME_TO_EXT[mime_type]
+    filename = f"{_uuid.uuid4()}{ext}"
+    storage_path = filename
+
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    (upload_dir / filename).write_bytes(content)
+
+    receipt = Receipt(
+        expense_id=expense_id,
+        filename=filename,
+        original_filename=original_filename,
+        mime_type=mime_type,
+        file_size=len(content),
+        storage_path=storage_path,
+    )
+    db.add(receipt)
+    await db.commit()
+    await db.refresh(receipt)
+    return receipt
+
+
+async def get_receipts_for_expense(db: AsyncSession, expense_id: UUID) -> list[Receipt]:
+    # Validate expense exists
+    expense = await db.get(Expense, expense_id)
+    if expense is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Expense not found")
+    result = await db.execute(
+        select(Receipt).where(Receipt.expense_id == expense_id).order_by(Receipt.created_at)
+    )
+    return list(result.scalars().all())
+
+
+async def get_receipt(db: AsyncSession, receipt_id: UUID) -> Receipt:
+    receipt = await db.get(Receipt, receipt_id)
+    if receipt is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Receipt not found")
+    return receipt
+
+
+async def delete_receipt(db: AsyncSession, receipt_id: UUID, upload_dir: Path) -> None:
+    receipt = await get_receipt(db, receipt_id)
+    file_path = upload_dir / receipt.storage_path
+    await db.delete(receipt)
+    await db.commit()
+    # Delete file after DB commit — missing file is not an error
+    try:
+        file_path.unlink()
+    except FileNotFoundError:
+        pass
 
 
 # ---------------------------------------------------------------------------
