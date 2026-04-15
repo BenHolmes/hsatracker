@@ -4,6 +4,7 @@ import { format, parseISO } from 'date-fns'
 export function formatCurrency(value: string | null | undefined): string {
   if (value == null) return '—'
   const num = parseFloat(value)
+  if (isNaN(num)) return '—'
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -14,7 +15,11 @@ export function formatCurrency(value: string | null | undefined): string {
 /** Format an ISO date string "YYYY-MM-DD" as "Jan 15, 2024". */
 export function formatDate(value: string | null | undefined): string {
   if (!value) return '—'
-  return format(parseISO(value), 'MMM d, yyyy')
+  try {
+    return format(parseISO(value), 'MMM d, yyyy')
+  } catch {
+    return '—'
+  }
 }
 
 /** Convert snake_case enum values to Title Case display labels. */
