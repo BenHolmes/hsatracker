@@ -11,6 +11,8 @@ two URL namespaces:
 Both are defined in routers/receipts.py and mounted here with different prefixes.
 """
 
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
@@ -21,9 +23,18 @@ from app.routers.receipts import receipts_router
 
 app = FastAPI(title="HSATracker API", version="1.0.0")
 
+# CORS origins are loaded from the environment so deployments on custom domains
+# work without code changes. The default covers both the Vite dev server and
+# the production Nginx container.
+_raw_origins = os.environ.get(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5173,http://localhost:3000",
+)
+_allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=_allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

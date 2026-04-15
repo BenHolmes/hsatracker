@@ -1,123 +1,158 @@
 # HSATracker
-HSATracker is a free, self-hosted HSA receipt and reimbursement tracker built for privacy-conscious users who want full control over their sensitive medical financial data. No subscriptions, no third-party servers, no data mining.
 
-# HSATracker — Build Progress
+A self-hosted, privacy-first HSA expense tracker. All data stays on your machine — no subscriptions, no third-party servers, no data mining.
 
-## Overview
+Built as a local alternative to Shoebox.io and TrackHSA.com.
 
-HSATracker is a self-hosted, privacy-first alternative to Shoebox.io and TrackHSA.com.
-All data stays on your machine. No external services, no subscriptions.
-
-**Stack:** React + TypeScript + Vite · FastAPI · PostgreSQL · Docker Compose
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-ffdd00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/benholmes)
 
 ---
 
-## Completed (Steps 1–7) - Starting UI
+## Features
 
-### Step 1 — Repo Scaffolding
-- `.gitignore` — ignores `__pycache__`, `node_modules`, `.env`, `data/`
-- `docker-compose.yml` — three services: `db`, `backend`, `frontend`
-- `.env.example` — all required environment variables with safe defaults
+- **Expense tracking** — log HSA-eligible expenses with category, payment method, provider, and receipts
+- **Receipt storage** — attach JPG, PNG, or PDF receipts; files stored on your host filesystem
+- **Reimbursement tracking** — track out-of-pocket expenses through pending → reimbursed lifecycle
+- **Contribution tracking** — record HSA deposits by source (self / employer / other) with IRS annual limit bars
+- **Balance snapshots** — manually record your HSA balance over time
+- **Dashboard** — yearly summary cards: balance, total expenses, reimbursement totals, contribution progress
+- **Pagination & filters** — filter expenses by year, category, and payment method; paginated at 50/page
 
-### Step 2 — Database Schema & Migrations
-Alembic migration `0001_initial` creates all 5 tables:
-
-| Table | Purpose |
-|---|---|
-| `expenses` | Medical expense records |
-| `reimbursements` | HSA reimbursement tracking per expense |
-| `contributions` | HSA contribution records by tax year |
-| `account_balance` | Point-in-time HSA balance snapshots |
-| `receipts` | File attachment metadata per expense |
-
-All money columns use `NUMERIC(10,2)`. UUIDs for all primary keys.
-Alembic runs automatically on container startup (`alembic upgrade head`).
-
-### Step 3 — Expenses API
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/v1/expenses/` | List with filters: `year`, `category`, `payment_method` |
-| `POST` | `/api/v1/expenses/` | Create expense |
-| `GET` | `/api/v1/expenses/{id}` | Detail with nested reimbursement + receipts |
-| `PATCH` | `/api/v1/expenses/{id}` | Partial update |
-| `DELETE` | `/api/v1/expenses/{id}` | Delete (cascades to reimbursement + receipts) |
-
-### Step 4 — Reimbursements API
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/v1/reimbursements/` | List with `status` filter; includes `pending_amount` and `reimbursed_amount_ytd` totals |
-| `POST` | `/api/v1/reimbursements/` | Mark expense as pending reimbursement |
-| `PATCH` | `/api/v1/reimbursements/{id}` | Update status, date, amount |
-| `DELETE` | `/api/v1/reimbursements/{id}` | Remove reimbursement record |
-
-**Business logic enforced:**
-- Only `out_of_pocket` expenses can be reimbursed (400 if HSA-paid)
-- Duplicate reimbursement records are rejected (400)
-
-### Step 5 — Contributions, Balance & Summary APIs
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/v1/contributions/` | List by `tax_year`; includes IRS limits and remaining amounts |
-| `POST` | `/api/v1/contributions/` | Record a contribution |
-| `PATCH` | `/api/v1/contributions/{id}` | Update contribution |
-| `DELETE` | `/api/v1/contributions/{id}` | Delete contribution |
-| `GET` | `/api/v1/balance/` | All balance snapshots + `latest` |
-| `POST` | `/api/v1/balance/` | Add balance snapshot |
-| `DELETE` | `/api/v1/balance/{id}` | Remove snapshot |
-| `GET` | `/api/v1/summary/` | Dashboard aggregate: expenses, reimbursements, contributions, balance |
-
-**IRS contribution limits (built-in):**
-- 2024: $4,150 individual / $8,300 family
-- 2025–2026: $4,300 individual / $8,550 family
-
-### Step 6 — Receipt File Upload
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/v1/expenses/{id}/receipts/` | Upload file (JPG, PNG, PDF) |
-| `GET` | `/api/v1/expenses/{id}/receipts/` | List receipt metadata for expense |
-| `GET` | `/api/v1/receipts/{id}/file` | Stream file inline (renders in browser) |
-| `DELETE` | `/api/v1/receipts/{id}` | Delete record + file from disk |
-
-**Storage:** Files saved to `./data/uploads/` on the host via Docker bind mount.
-Renamed to `{uuid}.ext` on disk to prevent collisions. Max size configurable via `MAX_UPLOAD_SIZE_MB` (default 10MB).
-
-### Step 7 — Frontend Scaffold
-- Vite 6 + React 19 + TypeScript project in `frontend/`
-- **Dependencies:** React Router v7, TanStack Query v5, Axios, React Hook Form, Zod, date-fns, Lucide React, Sonner
-- Tailwind CSS v4 via `@tailwindcss/vite` plugin (no config file needed)
-- Vite dev proxy: `/api` → `http://localhost:8000`
-- `App.tsx`: `BrowserRouter` with routes for all 5 pages, `QueryClientProvider` wrapping the tree
-- Placeholder pages: Dashboard, Expenses, Reimbursements, Contributions, Balance
+**Stack:** React 19 + TypeScript + Vite · FastAPI · PostgreSQL · Docker Compose
 
 ---
 
-## Docker Compose Services
+## Quick Start
 
-```
-db        postgres:17-alpine     Named volume: postgres_data
-backend   python:3.13-slim       Bind mount: ./data/uploads → /app/uploads
-frontend  node:22-alpine (dev)   Host port: ${PORT:-3000}
-```
-
-Start the full stack (dev):
 ```bash
-cp .env.example .env        # set a real POSTGRES_PASSWORD
-docker compose up db backend --build -d
-docker compose logs backend  # confirm "Application startup complete"
-cd frontend && npm run dev   # Vite dev server on http://localhost:5173
+# 1. Clone
+git clone https://github.com/yourname/hsatracker.git
+cd hsatracker
+
+# 2. Configure
+cp .env.example .env
+# Edit .env — at minimum set a strong POSTGRES_PASSWORD
+
+# 3. Start
+docker compose up --build -d
+
+# 4. Open
+open http://localhost:3000
+```
+
+Database migrations run automatically on startup. The `./data/uploads/` directory is created on first upload.
+
+---
+
+## Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `POSTGRES_DB` | `hsatracker` | PostgreSQL database name |
+| `POSTGRES_USER` | `hsatracker` | PostgreSQL username |
+| `POSTGRES_PASSWORD` | `changeme` | PostgreSQL password — **change this** |
+| `PORT` | `3000` | Host port the frontend is exposed on |
+| `UPLOAD_DIR` | `/app/uploads` | Path inside the backend container for receipt files |
+| `MAX_UPLOAD_SIZE_MB` | `10` | Maximum receipt file size in MB |
+| `ALLOWED_ORIGINS` | `http://localhost:5173,http://localhost:3000` | Comma-separated list of allowed CORS origins |
+
+---
+
+## Data & Backups
+
+All data lives in two places:
+
+| What | Where |
+|---|---|
+| Database | Docker named volume `postgres_data` |
+| Receipt files | `./data/uploads/` on the host (bind mount) |
+
+**Backup:**
+```bash
+# Database
+docker exec hsatracker-db-1 pg_dump -U hsatracker hsatracker > backup.sql
+
+# Receipt files
+cp -r ./data/uploads ./backups/uploads-$(date +%Y%m%d)
+```
+
+**Restore:**
+```bash
+docker exec -i hsatracker-db-1 psql -U hsatracker hsatracker < backup.sql
 ```
 
 ---
 
-## Remaining Steps
+## API
 
-| Step | Description |
+### Endpoints
+
+| Resource | Endpoints |
 |---|---|
-| 8 | Frontend: shared infra — API client, TypeScript types, Layout |
-| 9 | Frontend: expenses page + form modal |
-| 10 | Frontend: receipts — upload, list, thumbnail |
-| 11 | Frontend: reimbursements page |
-| 12 | Frontend: contributions + IRS limit bar |
-| 13 | Frontend: dashboard + balance page |
-| 14 | Docker production build — frontend Dockerfile + Nginx |
-| 15 | Polish — toasts, empty states, loading skeletons, README |
+| Expenses | `GET/POST /api/v1/expenses/` · `GET/PATCH/DELETE /api/v1/expenses/{id}` |
+| Receipts | `POST/GET /api/v1/expenses/{id}/receipts/` · `GET/DELETE /api/v1/receipts/{id}/file` |
+| Reimbursements | `GET/POST /api/v1/reimbursements/` · `PATCH/DELETE /api/v1/reimbursements/{id}` |
+| Contributions | `GET/POST /api/v1/contributions/` · `PATCH/DELETE /api/v1/contributions/{id}` |
+| Balance | `GET/POST /api/v1/balance/` · `DELETE /api/v1/balance/{id}` |
+| Summary | `GET /api/v1/summary/` |
+
+---
+
+## Development
+
+```bash
+# Start the database and backend
+cp .env.example .env
+docker compose up db backend --build -d
+
+# Start the frontend dev server (hot reload)
+cd frontend
+npm install
+npm run dev
+# → http://localhost:5173
+```
+
+The Vite dev server proxies `/api` to `http://localhost:8000`, so the frontend talks to the Docker backend directly.
+
+---
+
+## Project Structure
+
+```
+hsatracker/
+├── docker-compose.yml
+├── .env.example
+├── data/uploads/          # receipt files (created on first upload)
+├── backend/
+│   ├── Dockerfile
+│   ├── pyproject.toml
+│   ├── alembic/           # database migrations
+│   └── app/
+│       ├── main.py
+│       ├── models.py      # SQLAlchemy ORM models
+│       ├── schemas.py     # Pydantic request/response schemas
+│       ├── crud.py        # database query functions
+│       ├── constants.py   # HSA categories, IRS contribution limits
+│       └── routers/       # one file per resource
+└── frontend/
+    ├── Dockerfile
+    ├── nginx.conf
+    └── src/
+        ├── api/           # Axios API functions
+        ├── components/    # reusable UI components
+        ├── pages/         # top-level page components
+        ├── lib/           # formatters, constants
+        └── types/         # TypeScript interfaces
+```
+
+---
+
+## IRS Contribution Limits (built-in)
+
+| Year | Individual | Family |
+|---|---|---|
+| 2024 | $4,150 | $8,300 |
+| 2025 | $4,300 | $8,550 |
+| 2026 | $4,400 | $8,750 |
+
+Limits for years not in the table fall back to the most recent known year.
