@@ -10,6 +10,19 @@ from sqlalchemy.orm import selectinload
 
 from app.constants import ALLOWED_RECEIPT_MIME_TYPES, CONTRIBUTION_LIMITS
 from app.models import AccountBalance, Contribution, Expense, Receipt, Reimbursement
+
+# Explicit allowlists of columns that PATCH endpoints may modify.
+# Prevents id / created_at / updated_at from ever being overwritten via setattr.
+_EXPENSE_MUTABLE = frozenset({
+    "date", "provider_name", "description", "amount",
+    "category", "payment_method", "notes",
+})
+_REIMBURSEMENT_MUTABLE = frozenset({
+    "status", "reimbursed_date", "reimbursed_amount", "notes",
+})
+_CONTRIBUTION_MUTABLE = frozenset({
+    "date", "amount", "source", "tax_year", "notes",
+})
 from app.schemas import (
     BalanceCreate,
     ContributionCreate,
@@ -68,9 +81,9 @@ async def create_expense(db: AsyncSession, data: ExpenseCreate) -> Expense:
 
 async def update_expense(db: AsyncSession, expense_id: UUID, data: ExpenseUpdate) -> Expense:
     expense = await get_expense(db, expense_id)
-    updates = data.model_dump(exclude_unset=True)
-    for field, value in updates.items():
-        setattr(expense, field, value)
+    for field, value in data.model_dump(exclude_unset=True).items():
+        if field in _EXPENSE_MUTABLE:
+            setattr(expense, field, value)
     await db.commit()
     await db.refresh(expense)
     return await get_expense(db, expense_id)
@@ -165,9 +178,9 @@ async def update_reimbursement(
     db: AsyncSession, reimbursement_id: UUID, data: ReimbursementUpdate
 ) -> Reimbursement:
     reimbursement = await get_reimbursement(db, reimbursement_id)
-    updates = data.model_dump(exclude_unset=True)
-    for field, value in updates.items():
-        setattr(reimbursement, field, value)
+    for field, value in data.model_dump(exclude_unset=True).items():
+        if field in _REIMBURSEMENT_MUTABLE:
+            setattr(reimbursement, field, value)
     await db.commit()
     await db.refresh(reimbursement)
     return await get_reimbursement(db, reimbursement_id)
@@ -304,7 +317,8 @@ async def update_contribution(
 ) -> Contribution:
     obj = await get_contribution(db, contribution_id)
     for field, value in data.model_dump(exclude_unset=True).items():
-        setattr(obj, field, value)
+        if field in _CONTRIBUTION_MUTABLE:
+            setattr(obj, field, value)
     await db.commit()
     await db.refresh(obj)
     return obj
