@@ -17,7 +17,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from app.constants import CONTRIBUTION_LIMITS
+from app.constants import CONTRIBUTION_LIMITS, HsaCategory, PaymentMethod, ReimbursementStatus
 
 # Pre-computed bounds used in tax_year validators below
 _MIN_TAX_YEAR = min(CONTRIBUTION_LIMITS)
@@ -75,7 +75,7 @@ class ReimbursementUpdate(BaseModel):
     Typical usage: set status='reimbursed' along with reimbursed_date
     and reimbursed_amount once the HSA custodian has transferred funds.
     """
-    status: str | None = None
+    status: ReimbursementStatus | None = None
     reimbursed_date: datetime.date | None = None
     reimbursed_amount: Decimal | None = None
     notes: str | None = None
@@ -122,8 +122,8 @@ class ExpenseCreate(BaseModel):
     provider_name: str
     description: str
     amount: Decimal
-    category: str       # must be a valid HsaCategory value
-    payment_method: str # 'out_of_pocket' or 'hsa'
+    category: HsaCategory
+    payment_method: PaymentMethod
     notes: str | None = None
 
 
@@ -137,8 +137,8 @@ class ExpenseUpdate(BaseModel):
     provider_name: str | None = None
     description: str | None = None
     amount: Decimal | None = None
-    category: str | None = None
-    payment_method: str | None = None
+    category: HsaCategory | None = None
+    payment_method: PaymentMethod | None = None
     notes: str | None = None
 
 
