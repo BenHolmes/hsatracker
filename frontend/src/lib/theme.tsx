@@ -1,15 +1,17 @@
-import { Monitor, Moon, Sun } from 'lucide-react'
+import { Moon, Sun } from 'lucide-react'
 import { createContext, useContext, useEffect, useState } from 'react'
 
 export type Theme = 'light' | 'dark' | 'system'
 
 interface ThemeContextValue {
-  theme: Theme
+  theme: Theme                      // stored preference
+  resolvedTheme: 'light' | 'dark'  // what is actually applied to the DOM
   setTheme: (theme: Theme) => void
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
   theme: 'system',
+  resolvedTheme: 'light',
   setTheme: () => {},
 })
 
@@ -36,16 +38,30 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return 'system'
   })
 
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() => {
+    const stored = localStorage.getItem('theme')
+    if (stored === 'dark') return 'dark'
+    if (stored === 'light') return 'light'
+    return getSystemDark() ? 'dark' : 'light'
+  })
+
   useEffect(() => {
     if (theme === 'dark') {
       applyDark(true)
+      setResolvedTheme('dark')
     } else if (theme === 'light') {
       applyDark(false)
+      setResolvedTheme('light')
     } else {
-      applyDark(getSystemDark())
+      const isDark = getSystemDark()
+      applyDark(isDark)
+      setResolvedTheme(isDark ? 'dark' : 'light')
 
       const mq = window.matchMedia('(prefers-color-scheme: dark)')
-      const handler = (e: MediaQueryListEvent) => applyDark(e.matches)
+      const handler = (e: MediaQueryListEvent) => {
+        applyDark(e.matches)
+        setResolvedTheme(e.matches ? 'dark' : 'light')
+      }
       mq.addEventListener('change', handler)
       return () => mq.removeEventListener('change', handler)
     }
@@ -57,29 +73,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   )
 }
 
-// Cycles system → light → dark → system. Pass className for surface-specific styling.
-const CYCLE: Theme[] = ['system', 'light', 'dark']
-const THEME_ICONS: Record<Theme, React.ElementType> = { system: Monitor, light: Sun, dark: Moon }
-const THEME_LABELS: Record<Theme, string> = { system: 'System theme', light: 'Light theme', dark: 'Dark theme' }
-
+// Simple light ↔ dark toggle. Shows Moon in light mode, Sun in dark mode.
+// Always persists the choice to localStorage as the new default.
 export function ThemeToggle({ className = '' }: { className?: string }) {
-  const { theme, setTheme } = useTheme()
-  const Icon = THEME_ICONS[theme]
-  const next = CYCLE[(CYCLE.indexOf(theme) + 1) % CYCLE.length]
+  const { resolvedTheme, setTheme } = useTheme()
+  const isDark = resolvedTheme === 'dark'
   return (
     <button
-      onClick={() => setTheme(next)}
-      title={THEME_LABELS[theme]}
-      aria-label={THEME_LABELS[theme]}
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       className={`p-1.5 rounded transition-colors ${className}`}
     >
-      <Icon className="w-4 h-4" />
+      {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
     </button>
   )
 }

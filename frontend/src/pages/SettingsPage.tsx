@@ -46,7 +46,7 @@ export default function SettingsPage() {
       <Section title="Appearance">
         <div className="space-y-3">
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Choose how HSATracker looks. Saved in your browser.
+            Sets the default theme each time the app loads. <span className="font-medium text-slate-600 dark:text-slate-400">System</span> follows your OS preference.
           </p>
           <div className="flex gap-2">
             {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
