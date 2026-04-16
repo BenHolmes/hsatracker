@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage'
 import ExpensesPage from './pages/ExpensesPage'
 import ReimbursementsPage from './pages/ReimbursementsPage'
 import SettingsPage from './pages/SettingsPage'
+import { ThemeProvider } from './lib/theme'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,20 +20,22 @@ const queryClient = new QueryClient({
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Toaster position="top-right" richColors />
-      <BrowserRouter>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/expenses" element={<ExpensesPage />} />
-            <Route path="/reimbursements" element={<ReimbursementsPage />} />
-            <Route path="/account" element={<AccountPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <Toaster position="top-right" richColors />
+        <BrowserRouter>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/expenses" element={<ExpensesPage />} />
+              <Route path="/reimbursements" element={<ReimbursementsPage />} />
+              <Route path="/account" element={<AccountPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
   )
 }

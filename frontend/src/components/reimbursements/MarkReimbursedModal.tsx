@@ -60,25 +60,25 @@ export default function MarkReimbursedModal({ reimbursement, onClose }: Props) {
   })
 
   const fieldClass =
-    'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
+    'w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
 
   return (
     <Modal title="Mark as Reimbursed" onClose={onClose} maxWidth="max-w-md">
       <div className="space-y-4">
 
         {/* Expense summary */}
-        <div className="bg-slate-50 rounded-lg px-4 py-3 text-sm space-y-1.5">
+        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg px-4 py-3 text-sm space-y-1.5">
           <div className="flex justify-between">
-            <span className="text-slate-500">Provider</span>
-            <span className="font-medium text-slate-800">{reimbursement.expense.provider_name}</span>
+            <span className="text-slate-500 dark:text-slate-400">Provider</span>
+            <span className="font-medium text-slate-800 dark:text-slate-200">{reimbursement.expense.provider_name}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-500">Date</span>
-            <span className="text-slate-700">{formatDate(reimbursement.expense.date)}</span>
+            <span className="text-slate-500 dark:text-slate-400">Date</span>
+            <span className="text-slate-700 dark:text-slate-300">{formatDate(reimbursement.expense.date)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-500">Expense Amount</span>
-            <span className="font-medium text-slate-800">{formatCurrency(reimbursement.expense.amount)}</span>
+            <span className="text-slate-500 dark:text-slate-400">Expense Amount</span>
+            <span className="font-medium text-slate-800 dark:text-slate-200">{formatCurrency(reimbursement.expense.amount)}</span>
           </div>
         </div>
 
@@ -86,7 +86,7 @@ export default function MarkReimbursedModal({ reimbursement, onClose }: Props) {
           <fieldset disabled={mutation.isPending} className="space-y-4 disabled:opacity-60">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Amount Reimbursed ($)
               </label>
               <input
@@ -103,7 +103,7 @@ export default function MarkReimbursedModal({ reimbursement, onClose }: Props) {
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Reimbursement Date
               </label>
               <input type="date" {...register('reimbursed_date')} className={fieldClass} />
@@ -112,11 +112,11 @@ export default function MarkReimbursedModal({ reimbursement, onClose }: Props) {
 
           </fieldset>
 
-          <div className="flex justify-end gap-3 pt-2 mt-4 border-t border-slate-100">
+          <div className="flex justify-end gap-3 pt-2 mt-4 border-t border-slate-100 dark:border-slate-700">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
             >
               Cancel
             </button>

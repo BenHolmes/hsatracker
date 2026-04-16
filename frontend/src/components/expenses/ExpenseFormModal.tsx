@@ -160,7 +160,7 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
   })
 
   const fieldClass =
-    'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
+    'w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
 
   return (
     <Modal title={isEdit ? 'Edit Expense' : 'Add Expense'} onClose={onClose}>
@@ -170,12 +170,12 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
         {/* Date + Amount */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date</label>
             <input type="date" {...register('date')} className={fieldClass} />
             {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Amount ($)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Amount ($)</label>
             <input
               type="number"
               step="0.01"
@@ -190,7 +190,7 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
 
         {/* Provider */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Provider</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Provider</label>
           <input
             type="text"
             placeholder="e.g. Dr. Smith, CVS Pharmacy"
@@ -204,7 +204,7 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
           <input
             type="text"
             placeholder="e.g. Annual physical, Prescription refill"
@@ -219,7 +219,7 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
         {/* Category + Payment Method */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Category</label>
             <select {...register('category')} className={fieldClass}>
               <option value="">Select category…</option>
               {HSA_CATEGORIES.map(cat => (
@@ -231,7 +231,7 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Payment Method</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Payment Method</label>
             <select {...register('payment_method')} className={fieldClass}>
               <option value="out_of_pocket">Out of Pocket</option>
               <option value="hsa">HSA</option>
@@ -241,8 +241,8 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
 
         {/* Notes */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Notes <span className="text-slate-400 font-normal">(optional)</span>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            Notes <span className="text-slate-400 dark:text-slate-500 font-normal">(optional)</span>
           </label>
           <textarea
             rows={2}
@@ -254,14 +254,14 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
 
         {/* Receipt attachment — create flow only */}
         {!isEdit && (
-          <div className="pt-2 border-t border-slate-100 space-y-2">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-              Receipt <span className="font-normal normal-case text-slate-400">(optional)</span>
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-700 space-y-2">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+              Receipt <span className="font-normal normal-case text-slate-400 dark:text-slate-500">(optional)</span>
             </p>
             {pendingFile ? (
-              <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg">
+              <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
                 <Paperclip className="w-4 h-4 text-slate-400 shrink-0" />
-                <span className="text-sm text-slate-700 truncate flex-1">{pendingFile.name}</span>
+                <span className="text-sm text-slate-700 dark:text-slate-300 truncate flex-1">{pendingFile.name}</span>
                 <button
                   type="button"
                   onClick={() => setPendingFile(null)}
@@ -285,17 +285,17 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
                 className={[
                   'flex items-center gap-3 rounded-lg border-2 border-dashed px-4 py-3 cursor-pointer transition-colors',
                   draggingNew
-                    ? 'border-emerald-400 bg-emerald-50'
-                    : 'border-slate-300 hover:border-emerald-400 hover:bg-slate-50',
+                    ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20'
+                    : 'border-slate-300 dark:border-slate-600 hover:border-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-700',
                 ].join(' ')}
               >
                 <Upload className={`w-4 h-4 shrink-0 ${draggingNew ? 'text-emerald-500' : 'text-slate-400'}`} />
                 <div>
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
                     Drop a file or{' '}
                     <span className="text-emerald-600 font-medium">browse</span>
                   </p>
-                  <p className="text-xs text-slate-400">JPG, PNG, or PDF · max 10 MB</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">JPG, PNG, or PDF · max 10 MB</p>
                 </div>
                 <input
                   ref={fileInputRef}
@@ -315,13 +315,13 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
 
         {/* Reimbursement section */}
         {isEdit && reimbursement && (
-          <div className="pt-2 border-t border-slate-100 space-y-4">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-700 space-y-4">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
               Reimbursement
             </p>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   Amount Reimbursed ($)
                 </label>
                 <input
@@ -337,7 +337,7 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   Reimbursement Date
                 </label>
                 <input
@@ -352,8 +352,8 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
 
         {/* Receipts section — edit flow only */}
         {isEdit && (
-          <div className="pt-2 border-t border-slate-100 space-y-3">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-700 space-y-3">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
               Receipts
             </p>
             <ReceiptList expenseId={expense!.id} receipts={receipts} />
@@ -364,11 +364,11 @@ export default function ExpenseFormModal({ expense, onClose }: Props) {
         </fieldset>
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 pt-2 mt-4 border-t border-slate-100">
+        <div className="flex justify-end gap-3 pt-2 mt-4 border-t border-slate-100 dark:border-slate-700">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
           >
             Cancel
           </button>

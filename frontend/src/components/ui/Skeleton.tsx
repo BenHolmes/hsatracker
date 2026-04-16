@@ -8,7 +8,7 @@
 /** Animated grey block. Pass className to control width/height (e.g. "h-4 w-24"). */
 export function Skeleton({ className = '' }: { className?: string }) {
   return (
-    <div className={`animate-pulse bg-slate-200 rounded ${className}`} />
+    <div className={`animate-pulse bg-slate-200 dark:bg-slate-700 rounded ${className}`} />
   )
 }
 
@@ -20,7 +20,7 @@ export function TableSkeleton({ rows = 5, cols }: { rows?: number; cols: number 
   return (
     <>
       {Array.from({ length: rows }).map((_, i) => (
-        <tr key={i} className="border-b border-slate-100 last:border-0">
+        <tr key={i} className="border-b border-slate-100 dark:border-slate-700 last:border-0">
           {Array.from({ length: cols }).map((_, j) => (
             <td key={j} className="px-4 py-3.5">
               <Skeleton

@@ -26,13 +26,13 @@ function StatCard({
   loading?: boolean
 }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 px-5 py-4">
-      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{label}</p>
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 px-5 py-4">
+      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">{label}</p>
       {loading
         ? <Skeleton className="h-8 w-28 mt-1" />
         : <p className={`text-2xl font-bold truncate ${accent}`}>{value}</p>
       }
-      {!loading && sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+      {!loading && sub && <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{sub}</p>}
     </div>
   )
 }
@@ -60,7 +60,7 @@ export default function DashboardPage() {
   const fmt = (val?: string) => formatCurrency(val ?? '0')
 
   const selectClass =
-    'border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
+    'border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
 
   return (
     <div className="p-6 space-y-6">
@@ -130,7 +130,7 @@ export default function DashboardPage() {
       {/* Recent expenses */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
             Recent Expenses
           </h2>
           <Link
@@ -141,15 +141,15 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Provider</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Category</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Method</th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Amount</th>
+              <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Date</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Provider</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide hidden sm:table-cell">Category</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">Method</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -157,7 +157,7 @@ export default function DashboardPage() {
                 <TableSkeleton rows={3} cols={5} />
               ) : !recent || recent.items.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={5} className="px-4 py-8 text-center text-slate-400 dark:text-slate-500">
                     No expenses for {year}.{' '}
                     <Link to="/expenses" className="text-emerald-600 hover:underline">
                       Add your first expense.
@@ -168,15 +168,15 @@ export default function DashboardPage() {
                 recent.items.map(expense => (
                   <tr
                     key={expense.id}
-                    className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
+                    className="border-b border-slate-100 dark:border-slate-700 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                   >
-                    <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                       {formatDate(expense.date)}
                     </td>
-                    <td className="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">
+                    <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
                       {expense.provider_name}
                     </td>
-                    <td className="px-4 py-3 text-slate-600 whitespace-nowrap hidden sm:table-cell">
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap hidden sm:table-cell">
                       {formatLabel(expense.category)}
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
@@ -184,7 +184,7 @@ export default function DashboardPage() {
                         {expense.payment_method === 'hsa' ? 'HSA' : 'Out of Pocket'}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-right font-medium text-slate-800 whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
                       {formatCurrency(expense.amount)}
                     </td>
                   </tr>

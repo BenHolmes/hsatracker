@@ -54,7 +54,7 @@ export default function BalanceFormModal({ onClose }: Props) {
   })
 
   const fieldClass =
-    'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
+    'w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
 
   return (
     <Modal title="Add Balance Snapshot" onClose={onClose} maxWidth="max-w-md">
@@ -64,7 +64,7 @@ export default function BalanceFormModal({ onClose }: Props) {
         {/* Balance + Date */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Balance ($)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Balance ($)</label>
             <input
               type="number"
               step="0.01"
@@ -78,7 +78,7 @@ export default function BalanceFormModal({ onClose }: Props) {
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">As of Date</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">As of Date</label>
             <input type="date" {...register('as_of_date')} className={fieldClass} />
             {errors.as_of_date && (
               <p className="text-red-500 text-xs mt-1">{errors.as_of_date.message}</p>
@@ -88,8 +88,8 @@ export default function BalanceFormModal({ onClose }: Props) {
 
         {/* Notes */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Notes <span className="text-slate-400 font-normal">(optional)</span>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            Notes <span className="text-slate-400 dark:text-slate-500 font-normal">(optional)</span>
           </label>
           <textarea
             rows={2}
@@ -102,11 +102,11 @@ export default function BalanceFormModal({ onClose }: Props) {
         </fieldset>
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 pt-2 mt-4 border-t border-slate-100">
+        <div className="flex justify-end gap-3 pt-2 mt-4 border-t border-slate-100 dark:border-slate-700">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
           >
             Cancel
           </button>

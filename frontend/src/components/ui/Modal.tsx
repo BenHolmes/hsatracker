@@ -24,13 +24,13 @@ export default function Modal({ title, onClose, children, maxWidth = 'max-w-lg' 
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className={`bg-white rounded-xl shadow-xl w-full ${maxWidth} mx-4 max-h-[90vh] flex flex-col`}>
+      <div className={`bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full ${maxWidth} mx-4 max-h-[90vh] flex flex-col`}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 shrink-0">
-          <h2 className="text-base font-semibold text-slate-800">{title}</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
+          <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">{title}</h2>
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-slate-700 rounded transition-colors"
+            className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 rounded transition-colors"
             aria-label="Close"
           >
             <X className="w-5 h-5" />

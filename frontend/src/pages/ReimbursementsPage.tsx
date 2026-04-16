@@ -58,7 +58,7 @@ export default function ReimbursementsPage() {
   const colSpan = tab === 'reimbursed' ? 7 : 5
 
   const selectClass =
-    'border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
+    'border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
 
   const tabClass = (t: Tab) =>
     `px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
@@ -72,17 +72,17 @@ export default function ReimbursementsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 px-5 py-4">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 px-5 py-4">
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
             Pending
           </p>
           {isLoading
             ? <Skeleton className="h-8 w-28 mt-1" />
-            : <p className="text-2xl font-bold text-slate-900">{formatCurrency(data?.pending_amount ?? '0')}</p>
+            : <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{formatCurrency(data?.pending_amount ?? '0')}</p>
           }
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 px-5 py-4">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 px-5 py-4">
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
             Reimbursed YTD
           </p>
           {isLoading
@@ -127,20 +127,20 @@ export default function ReimbursementsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50">
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Provider</th>
-              <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Expense Amt</th>
+            <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Date</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Provider</th>
+              <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Expense Amt</th>
               {tab === 'reimbursed' && (
                 <>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Reimbursed Amt</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Reimbursed Date</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Reimbursed Amt</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Reimbursed Date</th>
                 </>
               )}
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Status</th>
               <th className="px-4 py-3 w-20" />
             </tr>
           </thead>
@@ -175,12 +175,12 @@ export default function ReimbursementsPage() {
               activeItems.map(r => (
                 <tr
                   key={r.id}
-                  className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
+                  className="border-b border-slate-100 dark:border-slate-700 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                 >
-                  <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                     {formatDate(r.expense.date)}
                   </td>
-                  <td className="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">
+                  <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
                     {r.expense.provider_name}
                   </td>
                   <td className="px-4 py-3 text-right font-medium text-slate-800 whitespace-nowrap">
@@ -191,7 +191,7 @@ export default function ReimbursementsPage() {
                       <td className="px-4 py-3 text-right font-medium text-emerald-700 whitespace-nowrap">
                         {r.reimbursed_amount ? formatCurrency(r.reimbursed_amount) : '—'}
                       </td>
-                      <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                         {r.reimbursed_date ? formatDate(r.reimbursed_date) : '—'}
                       </td>
                     </>
@@ -204,7 +204,7 @@ export default function ReimbursementsPage() {
                   <td className="px-4 py-3">
                     {deletingId === r.id ? (
                       <div className="flex items-center gap-2 whitespace-nowrap">
-                        <span className="text-xs text-slate-500">Remove?</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">Remove?</span>
                         <button
                           onClick={() => deleteMutation.mutate(r.id)}
                           disabled={deleteMutation.isPending}

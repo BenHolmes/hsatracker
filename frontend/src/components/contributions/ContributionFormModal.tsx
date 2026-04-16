@@ -81,7 +81,7 @@ export default function ContributionFormModal({ contribution, defaultTaxYear, on
   })
 
   const fieldClass =
-    'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
+    'w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
 
   return (
     <Modal title={isEdit ? 'Edit Contribution' : 'Add Contribution'} onClose={onClose}>
@@ -91,12 +91,12 @@ export default function ContributionFormModal({ contribution, defaultTaxYear, on
         {/* Date + Amount */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date</label>
             <input type="date" {...register('date')} className={fieldClass} />
             {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Amount ($)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Amount ($)</label>
             <input
               type="number"
               step="0.01"
@@ -112,7 +112,7 @@ export default function ContributionFormModal({ contribution, defaultTaxYear, on
         {/* Source + Tax Year */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Source</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Source</label>
             <select {...register('source')} className={fieldClass}>
               {SOURCES.map(s => (
                 <option key={s} value={s}>{formatLabel(s)}</option>
@@ -120,7 +120,7 @@ export default function ContributionFormModal({ contribution, defaultTaxYear, on
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Tax Year</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tax Year</label>
             <select {...register('tax_year', { valueAsNumber: true })} className={fieldClass}>
               {CONTRIBUTION_TAX_YEARS.map(y => (
                 <option key={y} value={y}>{y}</option>
@@ -131,8 +131,8 @@ export default function ContributionFormModal({ contribution, defaultTaxYear, on
 
         {/* Notes */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Notes <span className="text-slate-400 font-normal">(optional)</span>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            Notes <span className="text-slate-400 dark:text-slate-500 font-normal">(optional)</span>
           </label>
           <textarea
             rows={2}
@@ -145,11 +145,11 @@ export default function ContributionFormModal({ contribution, defaultTaxYear, on
         </fieldset>
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 pt-2 mt-4 border-t border-slate-100">
+        <div className="flex justify-end gap-3 pt-2 mt-4 border-t border-slate-100 dark:border-slate-700">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
           >
             Cancel
           </button>

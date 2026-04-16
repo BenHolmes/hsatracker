@@ -79,7 +79,7 @@ export default function AccountPage() {
   const closeModal = () => { setModalOpen(false); setEditingContrib(null) }
 
   const selectClass =
-    'border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
+    'border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent'
 
   return (
     <div className="p-6 space-y-10">
@@ -89,7 +89,7 @@ export default function AccountPage() {
 
         {/* Section header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-800">Balance</h2>
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">Balance</h2>
           <button
             onClick={() => setBalanceModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors"
@@ -101,37 +101,37 @@ export default function AccountPage() {
 
         {/* Latest balance card */}
         {balanceLoading ? (
-          <div className="bg-white rounded-xl border border-slate-200 px-5 py-4">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 px-5 py-4">
             <Skeleton className="h-3 w-28 mb-3" />
             <Skeleton className="h-9 w-36" />
           </div>
         ) : !balanceError && balanceData?.latest ? (
           <div className="bg-white rounded-xl border border-slate-200 px-5 py-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                 Current Balance
               </p>
               <p className="text-3xl font-bold text-emerald-600">
                 {formatCurrency(balanceData.latest.balance)}
               </p>
               {balanceData.latest.notes && (
-                <p className="text-xs text-slate-400 mt-1">{balanceData.latest.notes}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{balanceData.latest.notes}</p>
               )}
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-400 dark:text-slate-500">
               As of {formatDate(balanceData.latest.as_of_date)}
             </p>
           </div>
         ) : null}
 
         {/* Balance history table */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">As of Date</th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Balance</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Notes</th>
+              <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">As of Date</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Balance</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Notes</th>
                 <th className="px-4 py-3 w-16" />
               </tr>
             </thead>
@@ -160,21 +160,21 @@ export default function AccountPage() {
                 balanceData?.items.map(b => (
                   <tr
                     key={b.id}
-                    className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
+                    className="border-b border-slate-100 dark:border-slate-700 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                   >
-                    <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                       {formatDate(b.as_of_date)}
                     </td>
-                    <td className="px-4 py-3 text-right font-medium text-slate-800 whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
                       {formatCurrency(b.balance)}
                     </td>
-                    <td className="px-4 py-3 text-slate-500 max-w-64 truncate" title={b.notes ?? ''}>
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 max-w-64 truncate" title={b.notes ?? ''}>
                       {b.notes ?? '—'}
                     </td>
                     <td className="px-4 py-3">
                       {deletingBalanceId === b.id ? (
                         <div className="flex items-center gap-2 whitespace-nowrap">
-                          <span className="text-xs text-slate-500">Delete?</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400">Delete?</span>
                           <button
                             onClick={() => deleteBalanceMutation.mutate(b.id)}
                             disabled={deleteBalanceMutation.isPending}
@@ -184,7 +184,7 @@ export default function AccountPage() {
                           </button>
                           <button
                             onClick={() => setDeletingBalanceId(null)}
-                            className="text-xs text-slate-500 hover:underline"
+                            className="text-xs text-slate-500 dark:text-slate-400 hover:underline"
                           >
                             No
                           </button>
@@ -212,7 +212,7 @@ export default function AccountPage() {
 
         {/* Section header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-800">Contributions</h2>
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">Contributions</h2>
           <div className="flex items-center gap-3">
             <select
               value={taxYear}
@@ -241,15 +241,15 @@ export default function AccountPage() {
         )}
 
         {/* Contributions table */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Source</th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Amount</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Tax Year</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Notes</th>
+              <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Date</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Source</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Amount</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Tax Year</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Notes</th>
                 <th className="px-4 py-3 w-20" />
               </tr>
             </thead>
@@ -275,22 +275,22 @@ export default function AccountPage() {
                 data?.items.map(c => (
                   <tr
                     key={c.id}
-                    className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
+                    className="border-b border-slate-100 dark:border-slate-700 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                   >
-                    <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                       {formatDate(c.date)}
                     </td>
-                    <td className="px-4 py-3 text-slate-700 whitespace-nowrap">
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
                       {formatLabel(c.source)}
                     </td>
-                    <td className="px-4 py-3 text-right font-medium text-slate-800 whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
                       {formatCurrency(c.amount)}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
                       {c.tax_year}
                     </td>
                     <td
-                      className="px-4 py-3 text-slate-500 max-w-48 truncate"
+                      className="px-4 py-3 text-slate-500 dark:text-slate-400 max-w-48 truncate"
                       title={c.notes ?? ''}
                     >
                       {c.notes ?? '—'}
@@ -298,7 +298,7 @@ export default function AccountPage() {
                     <td className="px-4 py-3">
                       {deletingId === c.id ? (
                         <div className="flex items-center gap-2 whitespace-nowrap">
-                          <span className="text-xs text-slate-500">Delete?</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400">Delete?</span>
                           <button
                             onClick={() => deleteMutation.mutate(c.id)}
                             disabled={deleteMutation.isPending}
@@ -308,7 +308,7 @@ export default function AccountPage() {
                           </button>
                           <button
                             onClick={() => setDeletingId(null)}
-                            className="text-xs text-slate-500 hover:underline"
+                            className="text-xs text-slate-500 dark:text-slate-400 hover:underline"
                           >
                             No
                           </button>
@@ -342,8 +342,8 @@ export default function AccountPage() {
         {/* Total row */}
         {!isLoading && !isError && data && data.items.length > 0 && (
           <div className="flex justify-end pr-1">
-            <span className="text-sm text-slate-500 mr-4">Total contributed {taxYear}</span>
-            <span className="text-sm font-semibold text-slate-800">
+            <span className="text-sm text-slate-500 dark:text-slate-400 mr-4">Total contributed {taxYear}</span>
+            <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
               {formatCurrency(data.total_contributed)}
             </span>
           </div>
