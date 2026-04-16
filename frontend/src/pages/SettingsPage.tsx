@@ -1,4 +1,5 @@
-import { FolderOpen, HardDrive, Info } from 'lucide-react'
+import { FolderOpen, HardDrive, Info, Monitor, Moon, Sun } from 'lucide-react'
+import { type Theme, useTheme } from '../lib/theme'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -22,7 +23,15 @@ function Row({ label, value, mono = false }: { label: string; value: string; mon
   )
 }
 
+const THEME_OPTIONS: { value: Theme; label: string; icon: React.ElementType }[] = [
+  { value: 'system', label: 'System', icon: Monitor },
+  { value: 'light',  label: 'Light',  icon: Sun     },
+  { value: 'dark',   label: 'Dark',   icon: Moon    },
+]
+
 export default function SettingsPage() {
+  const { theme, setTheme } = useTheme()
+
   return (
     <div className="p-6 max-w-2xl space-y-6">
       <div>
@@ -32,6 +41,31 @@ export default function SettingsPage() {
           Restart the stack after making changes.
         </p>
       </div>
+
+      {/* Appearance */}
+      <Section title="Appearance">
+        <div className="space-y-3">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Choose how HSATracker looks. Saved in your browser.
+          </p>
+          <div className="flex gap-2">
+            {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+              <button
+                key={value}
+                onClick={() => setTheme(value)}
+                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg border transition-colors ${
+                  theme === value
+                    ? 'bg-emerald-600 text-white border-emerald-600'
+                    : 'border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Section>
 
       {/* Configuration */}
       <Section title="Configuration">

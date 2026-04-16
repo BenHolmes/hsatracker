@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import { ThemeToggle } from '../../lib/theme'
 
 const navItems = [
   { to: '/',               label: 'Dashboard',     icon: LayoutDashboard, end: true },
@@ -63,13 +64,16 @@ export default function Sidebar() {
             <Stethoscope className="w-5 h-5 text-emerald-400" />
             <span className="text-white font-semibold text-base tracking-tight">HSATracker</span>
           </Link>
-          <button
-            onClick={() => setMobileMenuOpen(o => !o)}
-            className="p-2 text-slate-400 hover:text-white rounded-lg transition-colors"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center gap-1">
+            <ThemeToggle className="text-slate-400 hover:text-white hover:bg-slate-800" />
+            <button
+              onClick={() => setMobileMenuOpen(o => !o)}
+              className="p-2 text-slate-400 hover:text-white rounded-lg transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile dropdown menu */}
