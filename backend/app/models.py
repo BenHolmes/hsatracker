@@ -177,6 +177,7 @@ class AppSettings(Base):
     id = sa.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     coverage_type = sa.Column(sa.Text, nullable=False, default="individual")
     catch_up_eligible = sa.Column(sa.Boolean, nullable=False, default=False)
+    theme = sa.Column(sa.Text, nullable=False, default="system")
     updated_at = sa.Column(
         sa.DateTime(timezone=True),
         server_default=sa.func.now(),
@@ -188,6 +189,10 @@ class AppSettings(Base):
         sa.CheckConstraint(
             "coverage_type IN ('individual', 'family')",
             name="ck_app_settings_coverage_type",
+        ),
+        sa.CheckConstraint(
+            "theme IN ('system', 'light', 'dark')",
+            name="ck_app_settings_theme",
         ),
     )
 

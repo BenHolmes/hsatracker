@@ -236,10 +236,12 @@ export interface AppSettings {
   id: string
   coverage_type: CoverageType
   catch_up_eligible: boolean
+  theme: 'system' | 'light' | 'dark'
   updated_at: string
 }
 
 export interface AppSettingsUpdate {
   coverage_type?: CoverageType
   catch_up_eligible?: boolean
+  theme?: 'system' | 'light' | 'dark'
 }

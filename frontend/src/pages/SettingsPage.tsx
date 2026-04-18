@@ -58,6 +58,14 @@ export default function SettingsPage() {
     onError: () => toast.error('Failed to save preferences'),
   })
 
+  const handleTheme = (value: Theme) => {
+    setTheme(value)
+    settingsMutation.mutate({ theme: value })
+  }
+
+  // Use the backend value when loaded, fall back to local context while loading.
+  const activeTheme: Theme = (appSettings?.theme as Theme | undefined) ?? theme
+
   return (
     <div className="p-6 max-w-2xl space-y-6">
       <div>
@@ -68,37 +76,40 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      {/* Appearance */}
-      <Section title="Appearance">
-        <div className="space-y-3">
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Sets the default theme each time the app loads. <span className="font-medium text-slate-600 dark:text-slate-400">System</span> follows your OS preference.
-          </p>
-          <div className="flex gap-2">
-            {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
-              <button
-                key={value}
-                onClick={() => setTheme(value)}
-                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg border transition-colors ${
-                  theme === value
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* Preferences */}
+      {/* Preferences — appearance + coverage + catch-up */}
       <Section title="Preferences">
         {settingsLoading ? (
           <p className="text-sm text-slate-400 dark:text-slate-500">Loading…</p>
         ) : (
           <div className="space-y-6">
+
+            {/* Appearance */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Appearance</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Sets the default theme each time the app loads.{' '}
+                <span className="font-medium text-slate-600 dark:text-slate-300">System</span> follows your OS preference.
+              </p>
+              <div className="flex gap-2 mt-1">
+                {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+                  <button
+                    key={value}
+                    onClick={() => handleTheme(value)}
+                    disabled={settingsMutation.isPending}
+                    className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg border transition-colors disabled:opacity-60 ${
+                      activeTheme === value
+                        ? 'bg-emerald-600 text-white border-emerald-600'
+                        : 'border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t border-slate-100 dark:border-slate-700" />
 
             {/* Coverage type */}
             <div className="space-y-2">
@@ -129,6 +140,8 @@ export default function SettingsPage() {
                 })}
               </div>
             </div>
+
+            <div className="border-t border-slate-100 dark:border-slate-700" />
 
             {/* Catch-up contributions */}
             <div className="flex items-start justify-between gap-4">

@@ -47,6 +47,12 @@ class CoverageType(str, Enum):
     FAMILY = "family"
 
 
+class ThemeChoice(str, Enum):
+    SYSTEM = "system"
+    LIGHT = "light"
+    DARK = "dark"
+
+
 # IRS HSA contribution limits by tax year: (individual, family)
 # Source: https://dqydj.com/historical-hsa-contribution-limit/
 # TODO: add minimum deductible required and catch-up contribution amounts (+$1,000 for age 55+)

@@ -24,6 +24,7 @@ from app.constants import (
     HsaCategory,
     PaymentMethod,
     ReimbursementStatus,
+    ThemeChoice,
 )
 
 # Pre-computed bounds used in tax_year validators below
@@ -314,6 +315,7 @@ class AppSettingsOut(BaseModel):
     id: UUID
     coverage_type: CoverageType
     catch_up_eligible: bool
+    theme: ThemeChoice
     updated_at: datetime.datetime
 
 
@@ -321,3 +323,4 @@ class AppSettingsUpdate(BaseModel):
     """Fields that can be changed via PATCH /settings. All optional."""
     coverage_type: CoverageType | None = None
     catch_up_eligible: bool | None = None
+    theme: ThemeChoice | None = None

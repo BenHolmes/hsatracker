@@ -569,7 +569,7 @@ async def get_summary(db: AsyncSession, year: int) -> dict:
 # The singleton row always has this fixed ID so upserts are deterministic.
 _SETTINGS_ID = _uuid.UUID("00000000-0000-0000-0000-000000000001")
 
-_SETTINGS_MUTABLE = frozenset({"coverage_type", "catch_up_eligible"})
+_SETTINGS_MUTABLE = frozenset({"coverage_type", "catch_up_eligible", "theme"})
 
 
 async def get_settings(db: AsyncSession) -> AppSettings:
