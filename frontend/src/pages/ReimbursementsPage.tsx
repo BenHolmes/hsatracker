@@ -64,7 +64,7 @@ export default function ReimbursementsPage() {
     `px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
       tab === t
         ? 'bg-emerald-600 text-white'
-        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700'
     }`
 
   return (
@@ -183,7 +183,7 @@ export default function ReimbursementsPage() {
                   <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
                     {r.expense.provider_name}
                   </td>
-                  <td className="px-4 py-3 text-right font-medium text-slate-800 whitespace-nowrap">
+                  <td className="px-4 py-3 text-right font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
                     {formatCurrency(r.expense.amount)}
                   </td>
                   {tab === 'reimbursed' && (

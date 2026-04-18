@@ -41,13 +41,13 @@ export default function ReceiptList({ expenseId, receipts }: Props) {
       {receipts.map(receipt => (
         <li
           key={receipt.id}
-          className="flex items-center gap-3 p-2 rounded-lg border border-slate-200 bg-slate-50"
+          className="flex items-center gap-3 p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
         >
           <ReceiptThumbnail receipt={receipt} />
 
           {/* File info */}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-slate-700 truncate">
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
               {receipt.original_filename}
             </p>
             <p className="text-xs text-slate-400">{formatFileSize(receipt.file_size)}</p>
@@ -59,7 +59,7 @@ export default function ReceiptList({ expenseId, receipts }: Props) {
               href={getReceiptFileUrl(receipt.id)}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-1.5 text-slate-400 hover:text-slate-700 rounded hover:bg-slate-200 transition-colors"
+              className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               title="Open"
             >
               <ExternalLink className="w-3.5 h-3.5" />

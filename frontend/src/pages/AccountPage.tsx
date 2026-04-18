@@ -324,7 +324,7 @@ export default function AccountPage() {
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => openEdit(c)}
-                            className="p-1.5 text-slate-400 hover:text-slate-700 rounded hover:bg-slate-100 transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                             title="Edit"
                           >
                             <Pencil className="w-3.5 h-3.5" />

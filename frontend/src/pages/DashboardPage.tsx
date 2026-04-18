@@ -17,7 +17,7 @@ function StatCard({
   label,
   value,
   sub,
-  accent = 'text-slate-900',
+  accent = 'text-slate-900 dark:text-slate-100',
   loading = false,
 }: {
   label:    string

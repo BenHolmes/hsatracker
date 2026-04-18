@@ -58,15 +58,15 @@ export default function ReceiptUpload({ expenseId }: Props) {
       className={[
         'flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-5 text-center transition-colors cursor-pointer',
         mutation.isPending
-          ? 'border-emerald-300 bg-emerald-50 cursor-wait'
+          ? 'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 cursor-wait'
           : dragging
-            ? 'border-emerald-400 bg-emerald-50'
-            : 'border-slate-300 hover:border-emerald-400 hover:bg-slate-50',
+            ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20'
+            : 'border-slate-300 dark:border-slate-600 hover:border-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-700/50',
       ].join(' ')}
     >
       <Upload className={`w-5 h-5 ${dragging || mutation.isPending ? 'text-emerald-500' : 'text-slate-400'}`} />
       <div>
-        <p className="text-sm font-medium text-slate-700">
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
           {mutation.isPending ? 'Uploading…' : 'Drop a file or click to upload'}
         </p>
         <p className="text-xs text-slate-400 mt-0.5">{ACCEPTED_LABEL} · max 10 MB</p>
