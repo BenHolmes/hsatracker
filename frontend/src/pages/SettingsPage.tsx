@@ -1,4 +1,8 @@
 import { FolderOpen, HardDrive, Info, Monitor, Moon, Sun } from 'lucide-react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { getSettings, updateSettings } from '../api/settings'
+import type { AppSettingsUpdate, CoverageType } from '../types'
 import { type Theme, useTheme } from '../lib/theme'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -29,8 +33,30 @@ const THEME_OPTIONS: { value: Theme; label: string; icon: React.ElementType }[] 
   { value: 'dark',   label: 'Dark',   icon: Moon    },
 ]
 
+const COVERAGE_OPTIONS: { value: CoverageType; label: string; description: string }[] = [
+  { value: 'individual', label: 'Individual', description: 'Covers only yourself' },
+  { value: 'family',     label: 'Family',     description: 'Covers you and dependents' },
+]
+
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme()
+  const queryClient = useQueryClient()
+
+  const { data: appSettings, isLoading: settingsLoading } = useQuery({
+    queryKey: ['settings'],
+    queryFn:  getSettings,
+  })
+
+  const settingsMutation = useMutation({
+    mutationFn: (patch: AppSettingsUpdate) => updateSettings(patch),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['settings'] })
+      queryClient.invalidateQueries({ queryKey: ['contributions'] })
+      queryClient.invalidateQueries({ queryKey: ['summary'] })
+      toast.success('Preferences saved')
+    },
+    onError: () => toast.error('Failed to save preferences'),
+  })
 
   return (
     <div className="p-6 max-w-2xl space-y-6">
@@ -65,6 +91,73 @@ export default function SettingsPage() {
             ))}
           </div>
         </div>
+      </Section>
+
+      {/* Preferences */}
+      <Section title="Preferences">
+        {settingsLoading ? (
+          <p className="text-sm text-slate-400 dark:text-slate-500">Loading…</p>
+        ) : (
+          <div className="space-y-6">
+
+            {/* Coverage type */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Coverage type</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Determines which IRS contribution limit is highlighted on the Account and Dashboard pages.
+              </p>
+              <div className="flex gap-3 mt-1">
+                {COVERAGE_OPTIONS.map(({ value, label, description }) => {
+                  const active = appSettings?.coverage_type === value
+                  return (
+                    <button
+                      key={value}
+                      onClick={() => settingsMutation.mutate({ coverage_type: value })}
+                      disabled={settingsMutation.isPending}
+                      className={`flex-1 text-left px-4 py-3 rounded-lg border transition-colors disabled:opacity-60 ${
+                        active
+                          ? 'bg-emerald-600 text-white border-emerald-600'
+                          : 'border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      <p className="text-sm font-medium">{label}</p>
+                      <p className={`text-xs mt-0.5 ${active ? 'text-emerald-100' : 'text-slate-400 dark:text-slate-500'}`}>
+                        {description}
+                      </p>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Catch-up contributions */}
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Catch-up contributions</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                  Account holders age 55 or older may contribute an additional $1,000 per year (IRS rule).
+                  Enabling this adds $1,000 to your displayed limit.
+                </p>
+              </div>
+              <button
+                role="switch"
+                aria-checked={appSettings?.catch_up_eligible ?? false}
+                onClick={() => settingsMutation.mutate({ catch_up_eligible: !appSettings?.catch_up_eligible })}
+                disabled={settingsMutation.isPending}
+                className={`relative shrink-0 mt-0.5 inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-60 ${
+                  appSettings?.catch_up_eligible ? 'bg-emerald-600' : 'bg-slate-200 dark:bg-slate-600'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                    appSettings?.catch_up_eligible ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+
+          </div>
+        )}
       </Section>
 
       {/* Configuration */}

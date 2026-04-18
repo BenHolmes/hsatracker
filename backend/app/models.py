@@ -164,6 +164,34 @@ class AccountBalance(Base):
     )
 
 
+class AppSettings(Base):
+    """Singleton application preferences row.
+
+    There is exactly one row in this table (id = SETTINGS_SINGLETON_ID).
+    Use crud.get_settings() which upserts the row on first access so callers
+    never have to handle the empty-table case.
+    """
+
+    __tablename__ = "app_settings"
+
+    id = sa.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    coverage_type = sa.Column(sa.Text, nullable=False, default="individual")
+    catch_up_eligible = sa.Column(sa.Boolean, nullable=False, default=False)
+    updated_at = sa.Column(
+        sa.DateTime(timezone=True),
+        server_default=sa.func.now(),
+        onupdate=sa.func.now(),
+        nullable=False,
+    )
+
+    __table_args__ = (
+        sa.CheckConstraint(
+            "coverage_type IN ('individual', 'family')",
+            name="ck_app_settings_coverage_type",
+        ),
+    )
+
+
 class Receipt(Base):
     """A receipt file attached to an expense.
 

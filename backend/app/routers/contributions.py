@@ -20,6 +20,8 @@ from app.constants import CONTRIBUTION_LIMITS
 from app.database import get_db
 from app.schemas import ContributionCreate, ContributionOut, ContributionUpdate, PaginatedContributions
 
+_CATCH_UP_AMOUNT = Decimal("1000.00")
+
 router = APIRouter()
 
 
@@ -34,11 +36,18 @@ async def list_contributions(
     yet in the CONTRIBUTION_LIMITS table (e.g. a future year).
     """
     items, total_contributed = await crud.get_contributions(db, tax_year)
+    app_settings = await crud.get_settings(db)
 
     # Fall back to the latest year in the table if the requested year is unknown
     limits = CONTRIBUTION_LIMITS.get(tax_year, CONTRIBUTION_LIMITS[max(CONTRIBUTION_LIMITS)])
     limit_individual = Decimal(limits[0])
     limit_family = Decimal(limits[1])
+
+    # IRS allows an additional $1,000 catch-up contribution for account holders
+    # who are age 55 or older.
+    if app_settings.catch_up_eligible:
+        limit_individual += _CATCH_UP_AMOUNT
+        limit_family += _CATCH_UP_AMOUNT
 
     return PaginatedContributions(
         items=items,

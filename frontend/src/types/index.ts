@@ -29,6 +29,7 @@ export type HsaCategory =
 export type PaymentMethod = 'out_of_pocket' | 'hsa'
 export type ReimbursementStatus = 'pending' | 'reimbursed'
 export type ContributionSource = 'self' | 'employer' | 'other'
+export type CoverageType = 'individual' | 'family'
 
 // ---------------------------------------------------------------------------
 // Receipts
@@ -225,4 +226,20 @@ export interface SummaryOut {
   remaining_family: string
   latest_balance: string | null
   latest_balance_date: string | null
+}
+
+// ---------------------------------------------------------------------------
+// App Settings
+// ---------------------------------------------------------------------------
+
+export interface AppSettings {
+  id: string
+  coverage_type: CoverageType
+  catch_up_eligible: boolean
+  updated_at: string
+}
+
+export interface AppSettingsUpdate {
+  coverage_type?: CoverageType
+  catch_up_eligible?: boolean
 }

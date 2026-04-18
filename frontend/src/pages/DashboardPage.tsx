@@ -3,6 +3,7 @@ import { ArrowRight, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getExpenses } from '../api/expenses'
+import { getSettings } from '../api/settings'
 import { getSummary, getSummaryYears } from '../api/summary'
 import ExpenseFormModal from '../components/expenses/ExpenseFormModal'
 import ContributionLimitBar from '../components/contributions/ContributionLimitBar'
@@ -55,6 +56,11 @@ export default function DashboardPage() {
   const { data: recent, isLoading: recentLoading } = useQuery({
     queryKey: ['expenses', { year, size: 5, page: 1 }],
     queryFn:  () => getExpenses({ year, size: 5, page: 1 }),
+  })
+
+  const { data: appSettings } = useQuery({
+    queryKey: ['settings'],
+    queryFn:  getSettings,
   })
 
   const fmt = (val?: string) => formatCurrency(val ?? '0')
@@ -124,6 +130,7 @@ export default function DashboardPage() {
           totalContributed={summary.total_contributed}
           limitIndividual={summary.limit_individual}
           limitFamily={summary.limit_family}
+          coverageType={appSettings?.coverage_type}
         />
       )}
 

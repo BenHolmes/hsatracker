@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.constants import ALLOWED_RECEIPT_MIME_TYPES, CONTRIBUTION_LIMITS
-from app.models import AccountBalance, Contribution, Expense, Receipt, Reimbursement
+from app.models import AccountBalance, AppSettings, Contribution, Expense, Receipt, Reimbursement
 
 # Explicit allowlists of columns that PATCH endpoints may modify.
 # Prevents id / created_at / updated_at from ever being overwritten via setattr.
@@ -25,6 +25,7 @@ _CONTRIBUTION_MUTABLE = frozenset({
     "date", "amount", "source", "tax_year", "notes",
 })
 from app.schemas import (
+    AppSettingsUpdate,
     BalanceCreate,
     ContributionCreate,
     ContributionUpdate,
@@ -532,6 +533,12 @@ async def get_summary(db: AsyncSession, year: int) -> dict:
     limit_individual = Decimal(limits[0])
     limit_family = Decimal(limits[1])
 
+    # Apply IRS catch-up contribution (+$1,000) for account holders aged 55+.
+    app_settings = await get_settings(db)
+    if app_settings.catch_up_eligible:
+        limit_individual += Decimal("1000.00")
+        limit_family += Decimal("1000.00")
+
     # --- Latest balance snapshot (already a single-row query) ---
     balance_result = await db.execute(
         select(AccountBalance).order_by(AccountBalance.as_of_date.desc()).limit(1)
@@ -553,3 +560,35 @@ async def get_summary(db: AsyncSession, year: int) -> dict:
         "latest_balance": latest_balance_obj.balance if latest_balance_obj else None,
         "latest_balance_date": latest_balance_obj.as_of_date if latest_balance_obj else None,
     }
+
+
+# ---------------------------------------------------------------------------
+# App Settings (singleton)
+# ---------------------------------------------------------------------------
+
+# The singleton row always has this fixed ID so upserts are deterministic.
+_SETTINGS_ID = _uuid.UUID("00000000-0000-0000-0000-000000000001")
+
+_SETTINGS_MUTABLE = frozenset({"coverage_type", "catch_up_eligible"})
+
+
+async def get_settings(db: AsyncSession) -> AppSettings:
+    """Return the singleton settings row, creating it with defaults if absent."""
+    row = (await db.execute(select(AppSettings).where(AppSettings.id == _SETTINGS_ID))).scalar_one_or_none()
+    if row is None:
+        row = AppSettings(id=_SETTINGS_ID)
+        db.add(row)
+        await db.commit()
+        await db.refresh(row)
+    return row
+
+
+async def update_settings(db: AsyncSession, data: AppSettingsUpdate) -> AppSettings:
+    """Apply a partial update to the singleton settings row."""
+    row = await get_settings(db)
+    for field, value in data.model_dump(exclude_unset=True).items():
+        if field in _SETTINGS_MUTABLE:
+            setattr(row, field, value)
+    await db.commit()
+    await db.refresh(row)
+    return row

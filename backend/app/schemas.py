@@ -20,6 +20,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 from app.constants import (
     CONTRIBUTION_LIMITS,
     ContributionSource,
+    CoverageType,
     HsaCategory,
     PaymentMethod,
     ReimbursementStatus,
@@ -300,3 +301,23 @@ class SummaryOut(BaseModel):
     remaining_family: Decimal
     latest_balance: Decimal | None       # None until the first balance snapshot is entered
     latest_balance_date: datetime.date | None
+
+
+# ---------------------------------------------------------------------------
+# App Settings (singleton)
+# ---------------------------------------------------------------------------
+
+class AppSettingsOut(BaseModel):
+    """Persistent application preferences returned from GET /settings."""
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    coverage_type: CoverageType
+    catch_up_eligible: bool
+    updated_at: datetime.datetime
+
+
+class AppSettingsUpdate(BaseModel):
+    """Fields that can be changed via PATCH /settings. All optional."""
+    coverage_type: CoverageType | None = None
+    catch_up_eligible: bool | None = None

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { deleteBalance, getBalance } from '../api/balance'
 import { deleteContribution, getContributionYears, getContributions } from '../api/contributions'
+import { getSettings } from '../api/settings'
 import BalanceFormModal from '../components/balance/BalanceFormModal'
 import ContributionFormModal from '../components/contributions/ContributionFormModal'
 import ContributionLimitBar from '../components/contributions/ContributionLimitBar'
@@ -58,6 +59,11 @@ export default function AccountPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['contributions', { taxYear }],
     queryFn:  () => getContributions(taxYear),
+  })
+
+  const { data: appSettings } = useQuery({
+    queryKey: ['settings'],
+    queryFn:  getSettings,
   })
 
   const deleteMutation = useMutation({
@@ -237,6 +243,7 @@ export default function AccountPage() {
             totalContributed={data.total_contributed}
             limitIndividual={data.limit_individual}
             limitFamily={data.limit_family}
+            coverageType={appSettings?.coverage_type}
           />
         )}
 
