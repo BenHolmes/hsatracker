@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import { getExpenses } from '../../api/expenses'
+import { getExpenseYears, getExpenses } from '../../api/expenses'
 import { createReimbursement } from '../../api/reimbursements'
 import { formatCurrency, formatDate } from '../../lib/formatters'
 import type { ExpenseOut } from '../../types'
@@ -11,15 +11,27 @@ interface Props {
   onClose: () => void
 }
 
+const CURRENT_YEAR = new Date().getFullYear()
+
 export default function TrackReimbursementModal({ onClose }: Props) {
   const queryClient = useQueryClient()
   const [selectedExpenseId, setSelectedExpenseId] = useState('')
   const [notes, setNotes]                         = useState('')
+  const [year, setYear]                           = useState(CURRENT_YEAR)
 
-  // Fetch all out-of-pocket expenses (no year filter = all years)
+  // Year options for the filter — reuse the same query already cached by ExpensesPage
+  const { data: rawYears } = useQuery({ queryKey: ['expense-years'], queryFn: getExpenseYears })
+  const yearOptions = useMemo(() => {
+    const years = rawYears ?? []
+    return years.includes(CURRENT_YEAR) ? years : [CURRENT_YEAR, ...years]
+  }, [rawYears])
+
+  // Fetch out-of-pocket expenses for the selected year only.
+  // Scoping by year keeps the list short and avoids loading the full history
+  // into a <select> when users have many years of data.
   const { data, isLoading } = useQuery({
-    queryKey: ['expenses-oop-all'],
-    queryFn:  () => getExpenses({ payment_method: 'out_of_pocket', size: 1000, page: 1 }),
+    queryKey: ['expenses-oop', year],
+    queryFn:  () => getExpenses({ payment_method: 'out_of_pocket', year, size: 200, page: 1 }),
   })
 
   // Only show expenses that aren't already being tracked
@@ -50,12 +62,24 @@ export default function TrackReimbursementModal({ onClose }: Props) {
           Select an out-of-pocket expense to start tracking for reimbursement.
         </p>
 
+        {/* Year filter — keeps the expense list short and avoids loading all-time history */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Year</label>
+          <select
+            value={year}
+            onChange={e => { setYear(Number(e.target.value)); setSelectedExpenseId('') }}
+            className={fieldClass}
+          >
+            {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
+
         <fieldset disabled={mutation.isPending} className="disabled:opacity-60">
         {isLoading ? (
           <p className="text-sm text-slate-400 dark:text-slate-500 py-6 text-center">Loading expenses…</p>
         ) : eligible.length === 0 ? (
           <p className="text-sm text-slate-400 dark:text-slate-500 py-6 text-center">
-            No eligible expenses found. All out-of-pocket expenses are already being tracked.
+            No untracked out-of-pocket expenses in {year}.
           </p>
         ) : (
           <div className="space-y-4">

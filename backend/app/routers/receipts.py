@@ -89,7 +89,15 @@ async def download_receipt(
     (e.g. after a volume was wiped).
     """
     receipt = await crud.get_receipt(db, receipt_id)
-    file_path = _upload_dir() / receipt.storage_path
+    upload_dir = _upload_dir()
+    file_path = upload_dir / receipt.storage_path
+    # Path-traversal guard: ensure the resolved path stays inside upload_dir
+    try:
+        file_path.resolve().relative_to(upload_dir.resolve())
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file path"
+        )
     if not file_path.exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

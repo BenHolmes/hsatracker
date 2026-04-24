@@ -84,6 +84,19 @@ async def create_expense(db: AsyncSession, data: ExpenseCreate) -> Expense:
 async def update_expense(db: AsyncSession, expense_id: UUID, data: ExpenseUpdate) -> Expense:
     expense = await get_expense(db, expense_id)
 
+    # Guard: can't flip payment_method to 'hsa' if a reimbursement record already exists.
+    # Reimbursements are only valid on out-of-pocket expenses; leaving one attached to
+    # an HSA-paid expense would make the reimbursement logically nonsensical.
+    if data.payment_method is not None and data.payment_method != "out_of_pocket":
+        if expense.reimbursement is not None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "Cannot change payment method — a reimbursement record is already attached. "
+                    "Remove the reimbursement first."
+                ),
+            )
+
     # Guard: reject amount reductions that would leave reimbursed_amount > new amount
     if data.amount is not None:
         reimb = expense.reimbursement
@@ -272,13 +285,33 @@ _MIME_TO_EXT = {
     "application/pdf": ".pdf",
 }
 
-# Magic bytes for server-side file type verification.
-# Rejects files where Content-Type doesn't match actual content.
-_MAGIC_BYTES: dict[str, bytes] = {
-    "image/jpeg": b"\xff\xd8\xff",
-    "image/png": b"\x89PNG\r\n\x1a\n",
-    "application/pdf": b"%PDF",
-}
+def _validate_file_content(mime_type: str, content: bytes) -> None:
+    """Verify file structure beyond the leading magic bytes.
+
+    Checks both the header AND a structural end marker so a file with a
+    valid header prepended to arbitrary content is rejected. Raises 400 on
+    any mismatch.
+
+    JPEG: starts with FF D8 FF  and ends with FF D9 (end-of-image marker)
+    PNG:  starts with 8-byte signature and contains IEND chunk in last 12 bytes
+    PDF:  starts with %PDF       and contains %%EOF in last 1 KB
+    """
+    if mime_type == "image/jpeg":
+        valid = content.startswith(b"\xff\xd8\xff") and content.endswith(b"\xff\xd9")
+    elif mime_type == "image/png":
+        valid = (
+            content.startswith(b"\x89PNG\r\n\x1a\n")
+            and b"IEND\xaeB`\x82" in content[-12:]
+        )
+    elif mime_type == "application/pdf":
+        valid = content.startswith(b"%PDF") and b"%%EOF" in content[-1024:]
+    else:
+        valid = False
+    if not valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File content does not match the declared file type",
+        )
 
 
 async def create_receipt(
@@ -296,14 +329,8 @@ async def create_receipt(
             detail=f"Unsupported file type '{mime_type}'. Allowed: jpeg, png, pdf",
         )
 
-    # Verify actual file content matches declared MIME type.
-    # Prevents Content-Type spoofing (e.g. uploading an EXE labelled as image/jpeg).
-    expected_magic = _MAGIC_BYTES.get(mime_type)
-    if expected_magic and not content.startswith(expected_magic):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="File content does not match the declared file type",
-        )
+    # Verify actual file content matches declared MIME type (header + end marker).
+    _validate_file_content(mime_type, content)
 
     max_bytes = max_size_mb * 1024 * 1024
     if len(content) > max_bytes:
@@ -372,6 +399,13 @@ async def get_receipt(db: AsyncSession, receipt_id: UUID) -> Receipt:
 async def delete_receipt(db: AsyncSession, receipt_id: UUID, upload_dir: Path) -> None:
     receipt = await get_receipt(db, receipt_id)
     file_path = upload_dir / receipt.storage_path
+    # Path-traversal guard: ensure the resolved path stays inside upload_dir
+    try:
+        file_path.resolve().relative_to(upload_dir.resolve())
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file path"
+        )
     await db.delete(receipt)
     await db.commit()
     # Delete file after DB commit — missing file is not an error
